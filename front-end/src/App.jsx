@@ -1,19 +1,24 @@
+import { Suspense, lazy } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css'
+const CheckList = lazy(() => import('./pages/CheckList/CheckList'));
 
 function App() {
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <Suspense
+        fallback={
+          <div className='h-screen'>
+            <p className='place-content-center'>Unimplemented</p>
+          </div>
+        }
+      >
+        <Routes>
+          <Route path='/' element={<Navigate to='/home' replace />}></Route>
+          <Route path='/home'  element={<CheckList />}></Route>
+        </Routes>
+      </Suspense>
     </>
-  )
+  );
 }
-
 export default App
