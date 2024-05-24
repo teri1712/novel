@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css'
 const CheckList = lazy(() => import('./pages/CheckList/CheckList'));
+const Homepage = lazy(() => import('./pages/Homepage/Homepage'));
 
 function App() {
   return (
@@ -14,8 +15,9 @@ function App() {
         }
       >
         <Routes>
-          <Route path='/' element={<Navigate to='/home' replace />}></Route>
-          <Route path='/home'  element={<CheckList />}></Route>
+          <Route path='/' element={<Navigate to='/todos' replace />}></Route>
+          <Route path='/home'  element={<Homepage />}></Route>
+          <Route path='/todos'  element={<CheckList />}></Route>
         </Routes>
       </Suspense>
     </>
