@@ -19,8 +19,8 @@ const CheckList = () => {
     {name: "Đồ án của tui", link: "https://www.github.com/salesync-org/salesync"}
   ];
   return (
-    <>
-      <p className="font-semibold text-[3rem]">System Design Final Project Checklist</p>
+    <div className="text-white bg-black h-screen">
+      <p className="font-semibold text-[3rem] mx-auto text-center">System Design Final Project Checklist</p>
       <div className="card w-fit mx-auto">
         <h1 className="font-semibold text-xl my-4">
           Các page/component cần xây dựng
@@ -47,7 +47,7 @@ const CheckList = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

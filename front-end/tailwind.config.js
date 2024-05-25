@@ -1,12 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      aspectRatio: {
+        card: '3/4'
+      },
+      fontFamily: {
+        'read-sans': ['Inter']
+      },
+      colors: {
+        primary: '#16314A',
+        secondary: '#EEF4F5'
+      }
+    }
   },
-  plugins: [],
-}
-
+  plugins: []
+};
