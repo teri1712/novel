@@ -13,7 +13,7 @@ function App() {
     <>
       <Suspense
         fallback={
-          <div className='h-screen'>
+          <div className='h-screen bg-slate-100'>
             <p className='place-content-center'>Unimplemented</p>
           </div>
         }

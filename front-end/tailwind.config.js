@@ -8,6 +8,10 @@ export default {
       },
       fontFamily: {
         'read-sans': ['Inter']
+      },
+      colors: {
+        primary: '#16314A',
+        secondary: '#EEF4F5'
       }
     }
   },
