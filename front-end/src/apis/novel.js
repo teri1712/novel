@@ -23,4 +23,13 @@ const getRecentNovels = async () => {
   }
 };
 
-export { getNovels, getNovelDetail, getRecentNovels };
+const getChapterContent = async (novelId, chapterId) => {
+  const result = await axios.get(`${NOVEL_SERVICE_URL}/detail/${novelId}/${chapterId}`);
+  console.log('result');
+  console.log(result);
+  if (result.status === 200) {
+    return result.data;
+  }
+};
+
+export { getNovels, getNovelDetail, getRecentNovels, getChapterContent };

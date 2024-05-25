@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { setupWorker } from 'msw/browser';
+import { delay } from '../utils/utils';
 
 const NOVEL_SERVICE_URL = 'http://localhost:3000/api/v1';
 const novels = [
@@ -134,19 +135,45 @@ const recentItems = [
   }
 ];
 
+const chapterContent = {
+  novel_id: '1',
+  chapter_id: '1',
+  author: 'Duy Quang',
+  novel_name: 'Lolita',
+  chapter_name: 'Part 1',
+  chapter_index: 1,
+  total_chapter: 10,
+  previous_chapter: null,
+  next_chapter: {
+    id: '2',
+    name: 'Part 2'
+  },
+  content:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lorem nulla, ullamcorper sed tristique eu, blandit in felis. Proin in malesuada erat, et blandit sem. Donec et augue nibh. Pellentesque semper velit nec tempor dictum. Suspendisse tortor est, commodo at ex quis, blandit imperdiet lacus. Aliquam id volutpat massa. Fusce luctus aliquam tortor, non pretium metus eleifend a. Morbi euismod porttitor bibendum. Morbi arcu velit, lobortis quis purus tristique, lobortis convallis lorem.\n\n  Aliquam vel varius nisl. Vestibulum vehicula id massa et convallis. Pellentesque venenatis vestibulum purus, at pretium nisi vehicula sit amet. Morbi quis aliquam ante. Mauris ut augue elit. Maecenas pellentesque ultrices congue. In hac habitasse platea dictumst. Nulla facilisi. Ut placerat ante nec eleifend blandit.\n\n Maecenas eget vulputate quam. Morbi lectus ipsum, accumsan ac euismod iaculis, laoreet sed justo. Aliquam egestas lacus varius, dignissim nibh vitae, dapibus odio. Duis quis gravida libero, quis pulvinar elit. Quisque eleifend ornare dolor, eget pharetra purus dapibus a. Cras placerat tellus blandit scelerisque aliquet. Nullam viverra, nulla ac interdum placerat, elit erat congue neque, sit amet iaculis tortor ex a justo. Vivamus varius, velit sit amet rutrum maximus, nulla nulla aliquet quam, vulputate sagittis quam metus id nisl. Ut nec aliquam mi. Aliquam rhoncus nisl libero, eu aliquet metus mollis sit amet. Ut et porttitor sem.'
+};
+
 export const handlers = [
   http.get(`${NOVEL_SERVICE_URL}/novels`, ({}) => {
+    delay(200);
     return HttpResponse.json(novels, {
       status: 200
     });
   }),
   http.get(`${NOVEL_SERVICE_URL}/1/detail`, ({}) => {
+    delay(200);
     return HttpResponse.json(novelDetail, {
       status: 200
     });
   }),
   http.get(`${NOVEL_SERVICE_URL}/recent`, ({}) => {
+    delay(200);
     return HttpResponse.json(recentItems, {
+      status: 200
+    });
+  }),
+  http.get(`${NOVEL_SERVICE_URL}/detail/1/1`, ({}) => {
+    delay(200);
+    return HttpResponse.json(chapterContent, {
       status: 200
     });
   })

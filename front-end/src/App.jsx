@@ -23,9 +23,9 @@ function App() {
             <Route path='/' element={<Navigate to='/todos' replace />}></Route>
             <Route path='/home' element={<Homepage />}></Route>
             <Route path='/:novelId/detail' element={<NovelDetail />}></Route>
-            <Route path='/:novelId/read/:chapterId' element={<NovelReader />}></Route>
             <Route path='/todos' element={<CheckList />}></Route>
           </Route>
+          <Route path='/:novelId/read/:chapterId' element={<NovelReader />}></Route>
         </Routes>
       </Suspense>
     </>
