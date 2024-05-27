@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './index.css';
 import PreferencesContextProvider from './contexts/preferences.jsx';
+import process from "../.eslintrc.cjs";
 
 async function enableMocking() {
   if (process.env.NODE_ENV === 'development') {
