@@ -4,6 +4,7 @@ import Author from "../../models/author.js";
 import Chapter from "../../models/chapter.js";
 import Supplier from "../../models/supplier.js";
 import browser from "../browser.js";
+import assert from "assert";
 
 async function crawlNovelType(url) {
   const page = await browser.newPage();
@@ -130,7 +131,8 @@ async function crawlDesc(url) {
   });
 
   /* crawl book's description */
-  const descDoc = await page.$(".col-xs-12.col-sm-8.col-md-8.desc");
+  const descDoc = await page.$("div.col-xs-12.col-sm-8.col-md-8.desc");
+  console.log(url);
   const res = await page.evaluate((descDoc) => {
     return descDoc.querySelector('.desc-text[itemprop="description"]')
       .textContent;

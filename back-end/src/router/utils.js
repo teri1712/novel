@@ -9,6 +9,7 @@ export async function novelsToJson(novels) {
   );
 }
 export async function novelToJson(novel) {
+  console.log(novel.suppliers[0].url);
   let desc = await crawlDesc(novel.suppliers[0].url);
   return {
     id: novel.id,
