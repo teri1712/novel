@@ -5,61 +5,65 @@ const Author = require("./models/author.js");
 const Chapter = require("./models/chapter.js");
 const Supplier = require("./models/supplier.js");
 
-async function init() {
-  let sups = await Supplier.find();
-  let sources = {};
-  for (let sup of sups) {
-    let domain_name = sup.domain_name;
-    let Crawler = require("./plug-in/" + domain_name + ".js");
-    let crawler = new Crawler(await browser);
-
-    sources[domain_name] = crawler;
+class Plugger {
+  constructor() {
+    this.plugins = this.init();
   }
-  return sources;
-}
+  async init() {
+    let sups = await Supplier.find();
+    let plugins = {};
+    for (let sup of sups) {
+      let domain_name = sup.domain_name;
+      let Crawler = require("./plug-in/" + domain_name + ".js");
+      let crawler = new Crawler(await browser);
 
-const _sources = init();
-async function inluceSource(domain_name, jsfile) {
-  let sources = await _sources;
-  try {
-    fs.writeFileSync("./src/db/plug-in/" + domain_name + ".js", jsfile);
-
-    let Crawler = require("./plug-in/" + domain_name + ".js");
-    let crawler = new Crawler(await browser);
-
-    sources[domain_name] = crawler;
-    await includeToDb(crawler);
-  } catch (error) {
-    console.error(error);
+      plugins[domain_name] = crawler;
+    }
+    return plugins;
   }
-}
-async function excludeSource(domain_name) {
-  let sources = await _sources;
-  try {
-    let crawler = sources[domain_name];
-    if (crawler) {
-      console.log("Okk");
-      delete sources[domain_name];
-      /* unplug completely the module, using common js instead of ES6 
+  async includePlugin(domain_name, jsfile) {
+    let plugins = await this.plugins;
+    try {
+      fs.writeFileSync("./src/db/plug-in/" + domain_name + ".js", jsfile);
+
+      let Crawler = require("./plug-in/" + domain_name + ".js");
+      let crawler = new Crawler(await browser);
+
+      plugins[domain_name] = crawler;
+      await _includeToDb(crawler);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async excludePlugin(domain_name) {
+    let plugins = await this.plugins;
+    try {
+      let crawler = plugins[domain_name];
+      if (crawler) {
+        console.log("Okk");
+        delete plugins[domain_name];
+        /* unplug completely the module, using common js instead of ES6 
       becase ES6 makes the module static, can't be removed until the end of the app
        */
-      delete require.cache[require.resolve("./plug-in/" + domain_name + ".js")];
-      await excludeFromDb(crawler);
+        delete require.cache[
+          require.resolve("./plug-in/" + domain_name + ".js")
+        ];
+        await _excludeFromDb(crawler);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
+  }
+  async get(domain_name) {
+    let plugins = await this.plugins;
+    if (!domain_name) {
+      return Object.values(plugins)[0];
+    }
+    return plugins[domain_name];
   }
 }
 
-async function getCrawler(domain_name) {
-  let sources = await _sources;
-  if (!domain_name) {
-    return Object.values(sources)[0];
-  }
-  return sources[domain_name];
-}
-
-async function includeToDb(crawler) {
+async function _includeToDb(crawler) {
   let url = crawler.url;
   let domain_name = crawler.domain_name;
 
@@ -90,7 +94,7 @@ async function includeToDb(crawler) {
   console.log("....................End.....................");
 }
 
-async function includeNovel(supplier, crawler, novelUrl) {
+async function _includeNovel(supplier, crawler, novelUrl) {
   let novelData = await crawler.crawlNovel(novelUrl);
   let novel = await Novel.findOne({ name: novelData.name });
   let chapters = novelData.chapters;
@@ -135,7 +139,7 @@ async function includeNovel(supplier, crawler, novelUrl) {
   await novel.save();
 }
 
-async function excludeFromDb(crawler) {
+async function _excludeFromDb(crawler) {
   let supplier = await Supplier.findOne({ url: crawler.url });
   await supplier.populate("novels");
   await supplier.populate("chapters");
@@ -169,11 +173,10 @@ async function excludeFromDb(crawler) {
   }
   await supplier.deleteOne();
 }
+const plugger = new Plugger();
 
 module.exports = {
-  includeNovel,
-  inluceSource,
-  includeToDb,
-  excludeSource,
-  getCrawler,
+  _includeNovel,
+  _includeToDb,
+  plugger,
 };

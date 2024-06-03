@@ -5,7 +5,7 @@ const Author = require("../db/models/author.js");
 const { pNovelToJson, novelsToJson } = require("./utils.js");
 const Chapter = require("../db/models/chapter.js");
 const UserRead = require("../db/models/userread.js");
-const { getCrawler } = require("../db/plugger.js");
+const { plugger } = require("../db/plugger.js");
 const novelRouter = Router();
 /* Ok */
 novelRouter.get("", async (req, res, next) => {
@@ -130,7 +130,7 @@ novelRouter.get("/detail/:novelId/:chapterId", async (req, res) => {
           name: nextChap.title,
         };
 
-    let crawler = await getCrawler(domain_name);
+    let crawler = await plugger.get(domain_name);
     let url = chapter.suppliers.find(
       (z) => z.supplier.domain_name === domain_name
     ).url;

@@ -4,7 +4,7 @@ const session = require("express-session");
 const authenRouter = require("./router/authen.js");
 const novelRouter = require("./router/novels.js");
 const userRouter = require("./router/user.js");
-const sourceRouter = require("./router/source.js");
+const pluginRouter = require("./router/plugin.js");
 
 const app = express();
 const PORT = 8080;
@@ -42,4 +42,4 @@ app.use(sessionContext);
 app.use(userRouter);
 app.use("/auth", authenRouter);
 app.use("/novels", novelRouter);
-app.use("/source", sourceRouter);
+app.use("/source", pluginRouter);

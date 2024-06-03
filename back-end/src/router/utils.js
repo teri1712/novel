@@ -1,6 +1,5 @@
-const assert = require("assert");
 const Novel = require("../db/models/novel.js");
-const { getCrawler } = require("../db/plugger.js");
+const { plugger } = require("../db/plugger.js");
 async function novelsToJson(novels) {
   await Novel.populate(novels, [{ path: "author" }]);
   return Promise.all(
@@ -19,7 +18,7 @@ async function novelToJson(novel, d = true) {
   };
   if (d) {
     let z = novel.suppliers[0];
-    let crawler = await getCrawler(z.supplier.domain_name);
+    let crawler = await plugger.get(z.supplier.domain_name);
     let desc = await crawler.crawlDesc(z.url);
     body.description = desc;
   }
