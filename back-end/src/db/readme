@@ -1,0 +1,3 @@
+- chạy npm run db
+- no transactional
+- no ACID
