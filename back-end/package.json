@@ -4,7 +4,9 @@
   "scripts": {
     "start": "node src/index.js",
     "db": "node src/db/init.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "vcl": "node src/db/plug-in/truyenfull.vn.js"
   },
   "keywords": [],
   "author": "",
@@ -12,9 +14,13 @@
   "description": "",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "mongoose": "^8.4.0",
     "puppeteer": "^22.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

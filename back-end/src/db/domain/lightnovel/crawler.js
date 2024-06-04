@@ -7,9 +7,7 @@ class Crawler {
 
   async crawlChapterContent(url) {
     const page = await this.browser.newPage();
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
     let div = await page.$("div#chapterContent");
 
     let res = await page.evaluate((div) => {
@@ -33,9 +31,7 @@ class Crawler {
 
   async crawlDesc(url) {
     const page = await this.browser.newPage();
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
     let div = await page.$("div#bookIntro");
     let res = await page.evaluate((div) => div.textContent, div);
     page.close();

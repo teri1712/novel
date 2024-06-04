@@ -27,7 +27,7 @@ const sessionContext = session({
 });
 
 app.use(sessionContext);
-
+console.log(process.env.NODE_ENV);
 /* For authentication, disable for testing */
 // app.use((req, res, next) => {
 //   const { authenContext } = req.session;

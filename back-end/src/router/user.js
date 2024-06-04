@@ -3,7 +3,7 @@ const Novel = require("../db/models/novel.js");
 const User = require("../db/models/user.js");
 const Author = require("../db/models/author.js");
 const UserRead = require("../db/models/userread.js");
-const { novelToJson } = require("./utils.js");
+const { novelToJson } = require("../controller/utils.js");
 
 const userRouter = Router();
 

@@ -1,3 +1,6 @@
+const { assert } = require("puppeteer");
+const browser = require("../domain/browser");
+
 class Crawler {
   constructor(browser) {
     this.browser = browser;
@@ -8,9 +11,7 @@ class Crawler {
   async crawlNovelType(url) {
     const page = await this.browser.newPage();
 
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
     const links = await page.$$("a.dropdown-toggle");
     for (let link of links) {
       let get = await page.evaluate((link) => {
@@ -45,9 +46,7 @@ class Crawler {
 
   async crawlNovelsByType(url) {
     const page = await this.browser.newPage();
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
     const div = await page.$(".list-truyen.col-xs-12");
     const res = await page.evaluate((div) => {
       let res = [];
@@ -101,9 +100,7 @@ class Crawler {
   }
   async crawlChapterContent(url) {
     const page = await this.browser.newPage();
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
 
     let res = await page.$$eval("p", (elements) => {
       let content = [];
@@ -125,12 +122,14 @@ class Crawler {
 
   async crawlDesc(url) {
     const page = await this.browser.newPage();
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
 
     /* crawl book's description */
     const div = await page.$("div.col-xs-12.col-sm-8.col-md-8.desc");
+    if (!div) {
+      console.log(url);
+      console.log(this.url);
+    }
     const res = await page.evaluate((div) => {
       return div.querySelector('.desc-text[itemprop="description"]')
         .textContent;
@@ -141,9 +140,7 @@ class Crawler {
 
   async crawlNovel(url) {
     const page = await this.browser.newPage();
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(url);
 
     /* crawl book's info */
     const infoDoc = await page.$(".title-list.book-intro");
@@ -204,5 +201,15 @@ class Crawler {
     return res;
   }
 }
+// async function cc() {
+//   let vcl = new Crawler(await browser);
+//   console.log(
+//     await vcl.crawlDesc(
+//       "https://truyenfull.vn/sau-khi-roi-vao-the-gioi-than-an-toi-tro-thanh-than/"
+//     )
+//   );
+//   (await browser).close();
+// }
+// cc();
 
 module.exports = Crawler;
