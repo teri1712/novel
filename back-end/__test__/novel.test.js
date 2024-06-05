@@ -7,7 +7,7 @@ const {
   getChapterDetail,
 } = require("../src/controller/novel");
 const browser = require("../src/db/domain/browser");
-describe("Novel flow test", function () {
+describe("Novel usecase flow test", function () {
   beforeAll(() => {
     mongoose
       .connect("mongodb://127.0.0.1:27017/novel")
@@ -20,17 +20,22 @@ describe("Novel flow test", function () {
     (await browser).close();
   });
 
-  test("Chain tests", async () => {
+  let res;
+  beforeEach(() => {
     res = {
       status: jest.fn(),
       send: jest.fn(),
     };
+  });
+  let novel, novelDetail, chapter, chapterDetail;
+  test("Take a novel from recommendation", async () => {
     await getRecommendation({}, res);
     expect(res.status).toHaveBeenCalledWith(200);
     let novels = res.send.mock.calls[0][0];
-    let novel = novels[5];
-
-    reset(res);
+    novel = novels[5];
+    console.log(novel);
+  }, 5000);
+  test("Get the novel by name", async () => {
     await getNovelByName(
       {
         query: {
@@ -40,8 +45,8 @@ describe("Novel flow test", function () {
       res
     );
     expect(res.status).toHaveBeenCalledWith(200);
-
-    reset(res);
+  });
+  test("Get the novel detail", async () => {
     await getNovelDetail(
       {
         params: {
@@ -51,11 +56,11 @@ describe("Novel flow test", function () {
       res
     );
     expect(res.status).toHaveBeenCalledWith(200);
-
-    let novelDetail = res.send.mock.calls[0][0];
-    let chapter = novelDetail.chapters[0];
-
-    reset(res);
+    novelDetail = res.send.mock.calls[0][0];
+    console.log(novelDetail);
+  }, 5000);
+  test("Get chapter detail", async () => {
+    chapter = novelDetail.chapters[0];
     await getChapterDetail(
       {
         params: {
@@ -67,28 +72,7 @@ describe("Novel flow test", function () {
       res
     );
     expect(res.status).toHaveBeenCalledWith(200);
-    let chapterDetail = res.send.mock.calls[0][0];
-    let suppliers = chapterDetail.suppliers;
-    for (let supplier of suppliers) {
-      reset(res);
-      await getChapterDetail(
-        {
-          params: {
-            novelId: novel.id,
-            chapterId: chapter.id,
-          },
-          query: {
-            domain_name: supplier,
-          },
-        },
-        res
-      );
-      expect(res.status).toHaveBeenCalledWith(200);
-    }
-  }, 30000);
+    chapterDetail = res.send.mock.calls[0][0];
+    console.log(chapterDetail);
+  }, 5000);
 });
-
-function reset(res) {
-  res.status = jest.fn();
-  res.send = jest.fn();
-}

@@ -5,7 +5,7 @@
     "start": "node src/index.js",
     "db": "node src/db/init.js",
     "dev": "nodemon src/index.js",
-    "test": "jest",
+    "test": "jest --runInBand",
     "vcl": "node src/db/plug-in/truyenfull.vn.js"
   },
   "keywords": [],

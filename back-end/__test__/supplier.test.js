@@ -4,7 +4,7 @@ const Chapter = require("../src/db/models/chapter");
 const Supplier = require("../src/db/models/supplier");
 const browser = require("../src/db/domain/browser");
 
-describe("Novel flow test", function () {
+describe("Supplier test", function () {
   beforeAll(() => {
     mongoose
       .connect("mongodb://127.0.0.1:27017/novel")
@@ -16,8 +16,15 @@ describe("Novel flow test", function () {
     mongoose.disconnect();
     (await browser).close();
   });
-  test("Supplier test calls", async () => {
-    let chap = await Chapter.findOne({ $where: "this.suppliers.length > 1" });
+  test("Test content of chapters for each supplier", async () => {
+    let chap = (
+      await Chapter.aggregate([
+        { $match: { "suppliers.1": { $exists: true } } },
+        { $sample: { size: 1 } },
+      ]).exec()
+    )[0];
+
+    chap = await Chapter.findOne({ _id: chap._id });
     await chap.populate("suppliers.supplier");
     await chap.populate("novel");
     for (let z of chap.suppliers) {
@@ -41,7 +48,10 @@ describe("Novel flow test", function () {
       console.log(
         "------------------------" + z.url + "------------------------"
       );
+      let chapter = res.send.mock.calls[0][0];
+      chapter.content =
+        chapter.content.split(" ").slice(0, 50).join(" ") + "...";
       console.log(res.send.mock.calls[0][0]);
     }
-  }, 30000);
+  }, 10000);
 });

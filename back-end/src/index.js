@@ -42,4 +42,4 @@ console.log(process.env.NODE_ENV);
 app.use(userRouter);
 app.use("/auth", authenRouter);
 app.use("/novels", novelRouter);
-app.use("/source", pluginRouter);
+app.use("/plugin", pluginRouter);

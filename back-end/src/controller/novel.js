@@ -37,7 +37,7 @@ async function getNovelByName(req, res, next) {
   }
   try {
     const fetchedNovel = await Novel.findOne({ name: title });
-    const novel = await pNovelToJson(fetchedNovel);
+    const novel = await pNovelToJson(fetchedNovel, false);
     res.status(200);
     res.send(novel);
   } catch (err) {

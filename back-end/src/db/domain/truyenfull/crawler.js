@@ -1,3 +1,4 @@
+const { assert } = require("assert");
 class Crawler {
   constructor(browser) {
     this.browser = browser;
@@ -8,7 +9,7 @@ class Crawler {
   async crawlNovelType(url) {
     const page = await this.browser.newPage();
 
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
     const links = await page.$$("a.dropdown-toggle");
     for (let link of links) {
       let get = await page.evaluate((link) => {
@@ -43,7 +44,7 @@ class Crawler {
 
   async crawlNovelsByType(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
     const div = await page.$(".list-truyen.col-xs-12");
     const res = await page.evaluate((div) => {
       let res = [];
@@ -97,7 +98,7 @@ class Crawler {
   }
   async crawlChapterContent(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     let res = await page.$$eval("p", (elements) => {
       let content = [];
@@ -119,13 +120,16 @@ class Crawler {
 
   async crawlDesc(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     /* crawl book's description */
-    const div = await page.$("div.col-xs-12.col-sm-8.col-md-8.desc");
+    const div = await page.$('div.desc-text[itemprop="description"]');
+    if (!div) {
+      console.log(url);
+      console.log(this.url);
+    }
     const res = await page.evaluate((div) => {
-      return div.querySelector('.desc-text[itemprop="description"]')
-        .textContent;
+      return div.textContent;
     }, div);
     page.close();
     return res;
@@ -133,7 +137,7 @@ class Crawler {
 
   async crawlNovel(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     /* crawl book's info */
     const infoDoc = await page.$(".title-list.book-intro");
@@ -143,7 +147,14 @@ class Crawler {
       let thumbnailUrl = div.querySelector("div.book").querySelector("img").src;
 
       let infoDiv = div.querySelector("div.info").querySelectorAll("div");
-      let author = infoDiv[0].querySelector("a").textContent;
+      if (!infoDiv[0].querySelector("a")) {
+        return null;
+      }
+      let authorDiv = infoDiv[0].querySelector("a");
+      if (!authorDiv) {
+        return null;
+      }
+      let author = authorDiv.textContent;
       let types = Array.from(infoDiv[1].querySelectorAll("a")).map(
         (a) => a.textContent
       );
@@ -155,6 +166,9 @@ class Crawler {
         categories: types,
       };
     }, infoDoc);
+    if (res == null) {
+      return null;
+    }
 
     /* crawl all chapters */
     let listChap = {};

@@ -6,10 +6,9 @@ class Crawler {
   }
   async crawlNovelType(url) {
     const page = await this.browser.newPage();
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
-    await page.goto(url);
     const link = await page.$("div.classify-list.fl.so-awesome#classify-list");
-
     let get = await page.evaluate((link) => {
       let crawled = {};
       let as = link.querySelectorAll("a");
@@ -32,7 +31,7 @@ class Crawler {
 
   async crawlNovelsByType(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
     const more = await (await page.$("div.update-tab.cf")).$("a");
     let moreHref = await page.evaluate((a) => a.href, more);
     await page.goto(moreHref, {
@@ -62,7 +61,7 @@ class Crawler {
 
   async crawlChapterContent(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     let div = await page.$("div.chapter-c-content");
     let content = await page.evaluate((div) => {
@@ -75,7 +74,7 @@ class Crawler {
 
   async crawlDesc(url) {
     const page = await this.browser.newPage();
-    await page.goto(url);
+    await page.goto(url, { waitUntil: "domcontentloaded" });
 
     /* crawl book's description */
     const descDoc = await page.$("div.book-intro");

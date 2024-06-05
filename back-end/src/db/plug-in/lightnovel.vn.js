@@ -11,7 +11,6 @@ class Crawler {
       waitUntil: "domcontentloaded",
     });
     let div = await page.$("div#chapterContent");
-
     let res = await page.evaluate((div) => {
       let ps = div.querySelectorAll("p");
       let content = [];

@@ -7,7 +7,10 @@ const { default: mongoose } = require("mongoose");
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/novel")
-  .then(() => console.log("Novel database connected"))
+  .then(() => {
+    console.log("Novel database connected");
+    mongoose.connection.db.dropDatabase();
+  })
   .catch((err) => console.log(err));
 
 async function init() {
@@ -18,6 +21,7 @@ async function init() {
 
   mongoose.disconnect();
   browser.close();
+  process.exit();
 }
 
 /* Manually crawl dupliation for multi-source option from the client side */

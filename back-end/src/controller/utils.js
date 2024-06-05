@@ -4,7 +4,7 @@ async function novelsToJson(novels) {
   await Novel.populate(novels, [{ path: "author" }]);
   return Promise.all(
     novels.map(async (novel) => {
-      return novelToJson(novel);
+      return novelToJson(novel, false);
     })
   );
 }

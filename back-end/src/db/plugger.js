@@ -84,7 +84,7 @@ async function _includeToDb(crawler) {
         continue;
       }
       cached.add(novelUrl);
-      await includeNovel(supplier, crawler, novelUrl);
+      await _includeNovel(supplier, crawler, novelUrl);
     }
     await supplier.save();
     console.log(
@@ -96,6 +96,9 @@ async function _includeToDb(crawler) {
 
 async function _includeNovel(supplier, crawler, novelUrl) {
   let novelData = await crawler.crawlNovel(novelUrl);
+  if (!novelData) {
+    return;
+  }
   let novel = await Novel.findOne({ name: novelData.name });
   let chapters = novelData.chapters;
 
