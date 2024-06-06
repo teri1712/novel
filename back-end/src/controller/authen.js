@@ -2,15 +2,15 @@ const User = require("../db/models/user.js");
 const jwt = require("jsonwebtoken");
 
 function createToken(user) {
-  let jwtToken = jwt.sign(
-    { id: user.id, username: user.username },
+  const jwtToken = jwt.sign(
+    { id: user.id, username: user.username, role: user.role },
     process.env.SECRET,
     {
       expiresIn: "10h",
     }
   );
   const refreshToken = jwt.sign(
-    { id: user.id, username: user.username },
+    { id: user.id, username: user.username, role: user.role },
     process.env.REFRESH_SECRET,
     {
       expiresIn: "7d",
@@ -26,6 +26,7 @@ function sendToken(res, user) {
     refreshToken: tokens[1],
     expiresIn: 10 * 60 * 60,
     tokenType: "Bearer",
+    authorization: user.role,
   };
   res.send(body);
 }

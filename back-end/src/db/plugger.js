@@ -135,10 +135,8 @@ async function _includeNovel(supplier, crawler, novelUrl) {
     }
     chapter.suppliers.push({ supplier: supplier.id, url: info.url });
     await chapter.save();
-    supplier.chapters.push(chapter.id);
   }
   novel.suppliers.push({ supplier: supplier.id, url: novelUrl });
-  supplier.novels.push(novel.id);
   await novel.save();
 }
 
@@ -146,7 +144,8 @@ async function _excludeFromDb(crawler) {
   let supplier = await Supplier.findOne({ url: crawler.url })
     .populate("novels")
     .populate("chapters");
-  for (let novel of supplier.novels) {
+  let novels = Novel.find({ suppliers: supplier.id });
+  for (let novel of novels) {
     for (let i = 0; i < novel.suppliers.length; i++) {
       let s = novel.suppliers[i];
       if (s.supplier == supplier.id) {
@@ -160,7 +159,9 @@ async function _excludeFromDb(crawler) {
       await novel.save();
     }
   }
-  for (let chapter of supplier.chapters) {
+  let chapters = Chapter.find({ suppliers: supplier.id });
+
+  for (let chapter of chapters) {
     for (let i = 0; i < chapter.suppliers.length; i++) {
       let s = chapter.suppliers[i];
       if (s.supplier == supplier.id) {

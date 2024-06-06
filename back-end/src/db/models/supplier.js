@@ -9,17 +9,5 @@ const Supplier = new mongoose.Schema({
     type: mongoose.SchemaTypes.String,
     require: true,
   },
-  novels: [
-    {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "Novel",
-    },
-  ],
-  chapters: [
-    {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "Chapter",
-    },
-  ],
 });
 module.exports = mongoose.model("Supplier", Supplier);

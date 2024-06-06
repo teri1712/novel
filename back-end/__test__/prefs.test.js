@@ -53,7 +53,6 @@ describe("Read novel by Preference flow", function () {
       authorization: "Bearer " + tokens.accessToken,
     };
     req.originalUrl = "/u/";
-
     res = {
       status: jest.fn(),
       send: jest.fn(),
@@ -62,16 +61,16 @@ describe("Read novel by Preference flow", function () {
     await fitler(req, res, next);
     expect(next).toHaveBeenCalledWith();
   }, 3000);
-  let suppliers;
 
-  test("Try to read Novel without Preferences.", async () => {
+  let suppliers;
+  test("Try to read Novel without Preferences", async () => {
     let novel = await Novel.findById({
-      _id: "66609e09f3ed5e505bc7aa77",
+      _id: "6661862bd90bdf5655428847",
     }).populate("suppliers.supplier");
     suppliers = novel.suppliers.map((z) => z.supplier);
 
     req.params = {
-      novelId: "66609e09f3ed5e505bc7aa77",
+      novelId: "6661862bd90bdf5655428847",
     };
     req.query = {
       domain_name: suppliers[0].domain_name,
@@ -80,9 +79,6 @@ describe("Read novel by Preference flow", function () {
 
     await getNovelDetail(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
-
-    let novelDetail = res.send.mock.calls[0][0];
-    console.log(novelDetail);
   }, 10000);
 
   test("Try to set a Preference", async () => {
@@ -90,8 +86,8 @@ describe("Read novel by Preference flow", function () {
       domain_name: suppliers[0].domain_name,
     };
     await setPref(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
 
+    expect(res.status).toHaveBeenCalledWith(200);
     expect((await Prefs.find({ user: req.auth.id })).length).toEqual(1);
   }, 10000);
 
@@ -123,45 +119,42 @@ describe("Read novel by Preference flow", function () {
       domain_name: suppliers[1].domain_name,
     };
     await setPref(req, res);
-    let highest = await Prefs.findOne({ user: req.auth.id }).sort({
+    expect((await Prefs.find({ user: req.auth.id })).length).toEqual(2);
+
+    let top = await Prefs.findOne({ user: req.auth.id }).sort({
       order: -1,
     });
-
-    expect((await Prefs.find({ user: req.auth.id })).length).toEqual(2);
-    expect(highest.supplier.toHexString()).toEqual(suppliers[1].id);
+    expect(top.supplier.toHexString()).toEqual(suppliers[1].id);
   }, 10000);
   test("Try to read Novel preference of b", async () => {
     req.params = {
-      novelId: "66609e09f3ed5e505bc7aa77",
+      novelId: "6661862bd90bdf5655428847",
     };
     await getNovelDetail(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
 
     let novelDetail = res.send.mock.calls[0][0];
-    console.log(novelDetail);
+    expect(novelDetail.supplier).toEqual(suppliers[1].domain_name);
   }, 10000);
-  test("Try to push a to top by lower bound", async () => {
+  test("Move a domain", async () => {
     req.query = {
       domain_name: suppliers[0].domain_name,
     };
-    let pref = await Prefs.findOne({
-      user: req.auth.id,
-      supplier: suppliers[1].id,
-    });
-    req.query.lower_bound = pref.order;
     await setPref(req, res);
-
     expect(res.status).toHaveBeenCalledWith(200);
+    let top = await Prefs.findOne({ user: req.auth.id }).sort({
+      order: -1,
+    });
+    expect(top.supplier.toHexString()).toEqual(suppliers[0].id);
   }, 10000);
-  test("Try to read Novel preference of a", async () => {
-    novel = await Novel.findById({ _id: "66609e09f3ed5e505bc7aa77" }).populate(
-      "suppliers.supplier"
-    );
 
+  test("Try to read Novel with preference of a", async () => {
     req.params = {
-      novelId: "66609e09f3ed5e505bc7aa77",
+      novelId: "6661862bd90bdf5655428847",
     };
     await getNovelDetail(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
+    let novelDetail = res.send.mock.calls[0][0];
+    expect(novelDetail.supplier).toEqual(suppliers[0].domain_name);
   }, 10000);
 });

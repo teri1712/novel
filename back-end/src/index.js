@@ -24,5 +24,5 @@ app.use(fitler);
 app.use("/u", userRouter);
 app.use("/auth", authenRouter);
 app.use("/novels", novelRouter);
-app.use("/plugin", pluginRouter);
-app.use("/prefs", prefsRouter);
+app.use("/admin/plugin", pluginRouter);
+app.use("/preference", prefsRouter);

@@ -34,14 +34,23 @@ describe("Novel usecase flow test", function () {
     expect(res.status).toHaveBeenCalledWith(200);
     let novels = res.send.mock.calls[0][0];
     novel = novels[5];
-
-    console.log(novel);
   }, 5000);
   test("Get the novel by name", async () => {
     req.query = {
       title: "Tiên",
     };
     await findNovelsByName(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    let novels = res.send.mock.calls[0][0];
+  }, 5000);
+
+  test("Get the novel by author", async () => {
+    req.query = {
+      author: "Bông Lan",
+    };
+    next = jest.fn();
+    await findNovelsByAuthor(req, res, next);
     expect(res.status).toHaveBeenCalledWith(200);
 
     let novels = res.send.mock.calls[0][0];
@@ -56,8 +65,6 @@ describe("Novel usecase flow test", function () {
     await getNovelDetail(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
     novelDetail = res.send.mock.calls[0][0];
-
-    console.log(novelDetail);
   }, 5000);
   test("Get chapter detail", async () => {
     chapter = novelDetail.chapters[0];
@@ -69,7 +76,5 @@ describe("Novel usecase flow test", function () {
     await getChapterDetail(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
     chapterDetail = res.send.mock.calls[0][0];
-
-    console.log(chapterDetail);
   }, 5000);
 });
