@@ -23,14 +23,23 @@ const Homepage = ({ ...props }) => {
     };
   }, []);
 
+  const handleSearchFilterChange = (value) => {
+    console.log(value);
+    // handle search
+  };
+
   return (
-    <div {...props} className={cn('h-full', props.className ?? '')}>
-      <section className='min-h-full px-4 pb-12 pt-4'>
+    <div {...props} className={cn('h-full', props ? props.className ?? '' : '')}>
+      <section className='relative min-h-full px-4 pb-12 pt-4'>
         <div className='mx-auto my-2 w-full pb-10'>
-          <SearchBar className='mx-auto w-full' placeholder='Search for a novel' />
+          <SearchBar
+            className='mx-auto w-full '
+            placeholder='Search for a novel'
+            onSearchFilterChange={handleSearchFilterChange}
+          />
         </div>
-        <div className='flex flex-col-reverse lg:grid lg:grid-cols-[1fr_auto]'>
-          <div className=''>
+        <div className='relative flex flex-col-reverse lg:flex-row'>
+          <div className='flex-grow basis-3/5'>
             <div className='flex flex-wrap'>
               {novelList
                 ? novelList.map((novel) => (
@@ -46,7 +55,7 @@ const Homepage = ({ ...props }) => {
                 : [...Array(8)].map((_, index) => <CardLayout key={index} />)}
             </div>
           </div>
-          <RecentItems className='w-full' />
+          <RecentItems className='top-16 flex-grow lg:sticky lg:max-w-[30%]' />
         </div>
       </section>
     </div>
