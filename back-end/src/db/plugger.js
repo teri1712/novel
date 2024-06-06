@@ -63,35 +63,38 @@ class Plugger {
   }
 }
 
-async function _includeToDb(crawler) {
-  let url = crawler.url;
-  let domain_name = crawler.domain_name;
+async function _includeToDb(crawlers) {
+  for(let crawler of crawlers){
+  
+    let url = crawler.url;
+    let domain_name = crawler.domain_name;
 
-  let supplier = new Supplier({
-    url: url,
-    domain_name: domain_name,
-  });
-  await supplier.save();
-
-  console.log("Start crawling from " + url);
-  let cates = await crawler.crawlNovelType(url);
-  let cached = new Set();
-  for (let [key, value] of Object.entries(cates)) {
-    let getNovelUrls = await crawler.crawlNovelsByType(value);
-    let start = new Date();
-    for (let novelUrl of getNovelUrls) {
-      if (cached.has(novelUrl)) {
-        continue;
-      }
-      cached.add(novelUrl);
-      await _includeNovel(supplier, crawler, novelUrl);
-    }
+    let supplier = new Supplier({
+      url: url,
+      domain_name: domain_name,
+    });
     await supplier.save();
-    console.log(
-      "End parsing " + key + " in " + (new Date() - start) / 1000 + " seconds"
-    );
+
+    console.log("Start crawling from " + url);
+    let cates = await crawler.crawlNovelType(url);
+    let cached = new Set();
+    for (let [key, value] of Object.entries(cates)) {
+      let getNovelUrls = await crawler.crawlNovelsByType(value);
+      let start = new Date();
+      for (let novelUrl of getNovelUrls) {
+        if (cached.has(novelUrl)) {
+          continue;
+        }
+        cached.add(novelUrl);
+        await _includeNovel(supplier, crawler, novelUrl);
+      }
+      await supplier.save();
+      console.log(
+        "End parsing " + key + " in " + (new Date() - start) / 1000 + " seconds"
+      );
+    }
+    console.log("....................End.....................");
   }
-  console.log("....................End.....................");
 }
 
 async function _includeNovel(supplier, crawler, novelUrl) {
@@ -134,18 +137,32 @@ async function _includeNovel(supplier, crawler, novelUrl) {
       });
     }
     chapter.suppliers.push({ supplier: supplier.id, url: info.url });
+    _includeSuppliers(chapter, novelData);
     await chapter.save();
   }
   novel.suppliers.push({ supplier: supplier.id, url: novelUrl });
   await novel.save();
 }
 
+async function _includeSuppliers(chapter, novelData){
+  let novelList = await Novel.find({ name: novelData.name });
+  for(let novel of novelList){
+    let chapterTempList = await Chapter.find({
+      number: chapter.number,
+      novel: novel.id,
+    });
+    for(let chapterTemp of chapterTempList){
+      chapter.suppliers.push({ supplier: chapterTemp.suppliers.supplier, url: chapterTemp.suppliers.url });
+    }    
+  }
+}
+
+
 async function _excludeFromDb(crawler) {
   let supplier = await Supplier.findOne({ url: crawler.url })
     .populate("novels")
     .populate("chapters");
-  let novels = Novel.find({ suppliers: supplier.id });
-  for (let novel of novels) {
+  for (let novel of supplier.novels) {
     for (let i = 0; i < novel.suppliers.length; i++) {
       let s = novel.suppliers[i];
       if (s.supplier == supplier.id) {

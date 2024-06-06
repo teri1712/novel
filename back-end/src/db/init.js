@@ -3,6 +3,7 @@ const Supplier = require("./models/supplier");
 const LightnovelCrawler = require("./domain/lightnovel/crawler.js");
 const { _includeNovel, _includeToDb } = require("./plugger.js");
 const TruyenfullCrawler = require("./domain/truyenfull/crawler.js");
+const TangThuVienCrawler = require("./domain/truyentangthuvien/crawler.js");
 const { default: mongoose } = require("mongoose");
 
 mongoose
@@ -14,13 +15,17 @@ mongoose
   .catch((err) => console.log(err));
 
 async function init() {
-  let browser = await puppeteer.launch();
-  let crawler = new TruyenfullCrawler(browser);
-  await _includeToDb(crawler);
-  await dupCrawlFromOtherDomain(browser);
+  let browser1 = await puppeteer.launch();
+  let crawler1 = new TruyenfullCrawler(browser1);
+  let browser2 = await puppeteer.launch();
+  let crawler2 = new TangThuVienCrawler(browser2);
+  let crawlers = [crawler1, crawler2];
+  await _includeToDb(crawlers);
+  await dupCrawlFromOtherDomain(browser1);
 
   mongoose.disconnect();
-  browser.close();
+  browser1.close();
+  browser2.close();
   process.exit();
 }
 
