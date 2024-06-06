@@ -13,6 +13,10 @@ const Novel = new mongoose.Schema({
     type: mongoose.SchemaTypes.String,
     require: true,
   },
+  views: {
+    type: mongoose.SchemaTypes.Number,
+    default: 0,
+  },
   url: {
     type: mongoose.SchemaTypes.String,
     require: true,

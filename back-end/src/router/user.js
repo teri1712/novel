@@ -9,7 +9,7 @@ const userRouter = Router();
 
 /*note that login first*/
 userRouter.get("/recent", async (req, res) => {
-  const { auth } = req.session.authenContext;
+  const auth = req.auth;
   try {
     let reads = await UserRead.find({ user: auth.id })
       .sort({ readAt: -1 })

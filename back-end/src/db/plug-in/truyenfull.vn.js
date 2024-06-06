@@ -140,7 +140,7 @@ class Crawler {
     await page.goto(url, { waitUntil: "domcontentloaded" });
 
     /* crawl book's info */
-    const infoDoc = await page.$(".title-list.book-intro");
+    const info = await page.$(".title-list.book-intro");
     const res = await page.evaluate((info) => {
       let div = info.parentElement;
       let name = div.querySelector("h3.title[itemprop='name']").textContent;
@@ -165,7 +165,7 @@ class Crawler {
         thumbnailUrl: thumbnailUrl,
         categories: types,
       };
-    }, infoDoc);
+    }, info);
     if (res == null) {
       return null;
     }

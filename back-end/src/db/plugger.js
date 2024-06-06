@@ -143,9 +143,9 @@ async function _includeNovel(supplier, crawler, novelUrl) {
 }
 
 async function _excludeFromDb(crawler) {
-  let supplier = await Supplier.findOne({ url: crawler.url });
-  await supplier.populate("novels");
-  await supplier.populate("chapters");
+  let supplier = await Supplier.findOne({ url: crawler.url })
+    .populate("novels")
+    .populate("chapters");
   for (let novel of supplier.novels) {
     for (let i = 0; i < novel.suppliers.length; i++) {
       let s = novel.suppliers[i];
