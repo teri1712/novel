@@ -20,7 +20,9 @@ async function init() {
   let browser2 = await puppeteer.launch();
   let crawler2 = new TangThuVienCrawler(browser2);
   let crawlers = [crawler1, crawler2];
-  await _includeToDb(crawlers);
+  for(let crawler of crawlers){
+    await _includeToDb(crawler);
+  }
   await dupCrawlFromOtherDomain(browser1);
 
   mongoose.disconnect();

@@ -63,38 +63,37 @@ class Plugger {
   }
 }
 
-async function _includeToDb(crawlers) {
-  for(let crawler of crawlers){
+async function _includeToDb(crawler) { 
   
-    let url = crawler.url;
-    let domain_name = crawler.domain_name;
+  let url = crawler.url;
+  let domain_name = crawler.domain_name;
 
-    let supplier = new Supplier({
-      url: url,
-      domain_name: domain_name,
-    });
-    await supplier.save();
+  let supplier = new Supplier({
+    url: url,
+    domain_name: domain_name,
+  });
+  await supplier.save();
 
-    console.log("Start crawling from " + url);
-    let cates = await crawler.crawlNovelType(url);
-    let cached = new Set();
-    for (let [key, value] of Object.entries(cates)) {
-      let getNovelUrls = await crawler.crawlNovelsByType(value);
-      let start = new Date();
-      for (let novelUrl of getNovelUrls) {
-        if (cached.has(novelUrl)) {
-          continue;
-        }
-        cached.add(novelUrl);
-        await _includeNovel(supplier, crawler, novelUrl);
+  console.log("Start crawling from " + url);
+  let cates = await crawler.crawlNovelType(url);
+  let cached = new Set();
+  for (let [key, value] of Object.entries(cates)) {
+    let getNovelUrls = await crawler.crawlNovelsByType(value);
+    let start = new Date();
+    for (let novelUrl of getNovelUrls) {
+      if (cached.has(novelUrl)) {
+        continue;
       }
-      await supplier.save();
-      console.log(
-        "End parsing " + key + " in " + (new Date() - start) / 1000 + " seconds"
-      );
+      cached.add(novelUrl);
+      await _includeNovel(supplier, crawler, novelUrl);
     }
-    console.log("....................End.....................");
+    await supplier.save();
+    console.log(
+      "End parsing " + key + " in " + (new Date() - start) / 1000 + " seconds"
+    );
   }
+  console.log("....................End.....................");
+  
 }
 
 async function _includeNovel(supplier, crawler, novelUrl) {
