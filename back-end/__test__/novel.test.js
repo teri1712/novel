@@ -78,3 +78,29 @@ describe("Novel usecase flow test", function () {
     chapterDetail = res.send.mock.calls[0][0];
   }, 5000);
 });
+
+test("Find novels by year", async () => {
+  req.query = {
+    year: 2020,
+  };
+  await findNovelsByYear(req, res);
+  expect(res.status).toHaveBeenCalledWith(200);
+  const novels = res.send.mock.calls[0][0];
+  expect(novels).toBeInstanceOf(Array);
+  novels.forEach(novel => {
+    expect(novel.year).toBe(2020);
+  });
+}, 5000);
+
+test("Find novels by genre", async () => {
+  req.query = {
+    genre: "Fantasy",
+  };
+  await findNovelsByGenre(req, res);
+  expect(res.status).toHaveBeenCalledWith(200);
+  const novels = res.send.mock.calls[0][0];
+  expect(novels).toBeInstanceOf(Array);
+  novels.forEach(novel => {
+    expect(novel.genre).toBe("Fantasy");
+  });
+}, 5000);
