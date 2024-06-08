@@ -73,6 +73,39 @@ async function findNovelsByName(req, res, next) {
     res.status(400);
   }
 }
+async function findNovelsByYear(req, res, next) {
+  const year = req.query.year;
+  if (!year) {
+    next();
+    return;
+  }
+  try {
+    const fetchedNovels = await Novel.find({ year: year }).populate("author");
+    const novels = await novelsToJson(fetchedNovels);
+    res.status(200);
+    res.send(novels);
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+  }
+}
+
+async function findNovelsByGenre(req, res, next) {
+  const genre = req.query.genre;
+  if (!genre) {
+    next();
+    return;
+  }
+  try {
+    const fetchedNovels = await Novel.find({ genre: genre }).populate("author");
+    const novels = await novelsToJson(fetchedNovels);
+    res.status(200);
+    res.send(novels);
+  } catch (err) {
+    console.log(err);
+    res.status(400);
+  }
+}
 async function getRecommendation(req, res) {
   try {
     let query = Novel.find().sort({ views: -1 }).limit(20).populate("author");
@@ -228,4 +261,6 @@ module.exports = {
   findNovelsByAuthor,
   getChapterDetail,
   getRecommendation,
+  findNovelsByYear, 
+  findNovelsByGenre, 
 };
