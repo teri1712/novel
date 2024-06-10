@@ -2,6 +2,7 @@ import NovelCard from './NovelCard/NovelCard';
 import Header from './Header/Header';
 import SearchBar from './SearchBar/SearchBar';
 import Button from './Button/Button';
+import DropDown from './DropDown/DropDown';
 import RecentItems from './RecentItems/RecentItems';
 import { RecentItemLayout } from './RecentItems/RecentItems';
 import Input from './Input/Input';
@@ -10,10 +11,12 @@ import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
 import ColorPicker from './ColorPicker/ColorPicker';
 import Skeleton from './Skeleton/Skeleton';
 import { CardLayout } from './NovelCard/NovelCard';
+import StrictModeDroppable from './StrictModeDroppable/StrictModeDroppable';
 
 export {
   Button,
   ColorPicker,
+  DropDown,
   Header,
   Input,
   NovelCard,
@@ -23,5 +26,6 @@ export {
   RecentItems,
   RecentItemLayout,
   CardLayout,
-  Select
+  Select,
+  StrictModeDroppable
 };

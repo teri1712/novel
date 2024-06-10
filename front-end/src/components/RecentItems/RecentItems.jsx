@@ -12,15 +12,15 @@ const RecentItems = ({ ...props }) => {
   const [recentItems, setRecentItems] = useState();
   const fetching = useRef(false);
   useEffect(() => {
-    const getRecentNovelItems = async (userId) => {
-      const receiveNovelItems = await getRecentNovels(userId);
+    const getRecentNovelItems = async () => {
+      const receiveNovelItems = await getRecentNovels();
       if (receiveNovelItems) {
         setRecentItems(receiveNovelItems);
       }
     };
     if (fetching.current == false && user) {
       fetching.current = true;
-      getRecentNovelItems(user.id);
+      getRecentNovelItems();
     }
 
     return () => {
@@ -47,7 +47,7 @@ const RecentItems = ({ ...props }) => {
         )
       ) : (
         <div className='align-center mx-auto flex w-1/2 flex-grow flex-col justify-center text-center'>
-          <p>Please login to see your recently read chapters</p>
+          <p>Please log in to see your recently read chapters</p>
           <img src={emptyImage} className='mx-auto w-full' alt='empty'></img>
         </div>
       )}
@@ -83,7 +83,7 @@ const RecentItem = ({ item, ...props }) => {
           to={`/${item.id}/read/${item.chapter.id}`}
           className='mx-4 flex h-fit w-32 flex-nowrap justify-center self-center rounded-full border-[1px] border-primary/40 p-2 px-4 align-middle text-[0.75rem] text-primary hover:scale-[1.01] hover:bg-white/20 active:scale-[0.99]'
         >
-          <p className='overflow-hidden text-ellipsis text-nowrap'>{item.chapter.name}</p>
+          <p className='overflow-hidden text-ellipsis text-nowrap'>{item.chapter.title}</p>
           <div className='ml-auto w-[1rem]'>
             <ChevronRight size='1rem' className='ml-2 self-center' />
           </div>
