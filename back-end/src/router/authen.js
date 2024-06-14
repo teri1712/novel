@@ -1,10 +1,16 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
-const { refreshToken, login, signup, getInfo } = require("../controller/authen.js");
+const {
+  refreshToken,
+  login,
+  signup,
+  getInfo,
+} = require("../controller/authen.js");
 
 const authenRouter = Router();
 
 async function fitler(req, res, next) {
+  console.log(req.originalUrl);
   const header = req.headers["authorization"];
   const token = header ? header.split(" ")[1] : undefined;
   try {

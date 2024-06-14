@@ -17,13 +17,11 @@ describe("Novel usecase flow test", function () {
       .then(() => console.log("Novel database connected"))
       .catch((err) => console.error(err));
     await novelManager.initiated;
-
   });
 
   afterAll(async () => {
     mongoose.disconnect();
     await (await browser).close();
-    ;
   });
 
   let res, req;
@@ -37,8 +35,8 @@ describe("Novel usecase flow test", function () {
   let novel, novelDetail, chapter, chapterDetail;
   test("Take a novel from recommendation", async () => {
     req.query = {
-      offset: 1
-    }
+      offset: 1,
+    };
     await getRecommendation(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
     let novels = res.send.mock.calls[0][0].novels;

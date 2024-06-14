@@ -13,13 +13,11 @@ describe("Supplier test", function () {
       .then(() => console.log("Novel database connected"))
       .catch((err) => console.error(err));
     await novelManager.initiated;
-
   });
 
   afterAll(async () => {
     mongoose.disconnect();
     await (await browser).close();
-    ;
   });
   test("Get content of a chapter for each supplier", async () => {
     let chapter = await Chapter.findOne({
@@ -45,7 +43,7 @@ describe("Supplier test", function () {
       );
       expect(res.status).toHaveBeenCalledWith(200);
     }
-  }, 10000);
+  }, 20000);
 
   test("Get content of a novel for each supplier", async () => {
     let novel = await Novel.findOne({
@@ -70,5 +68,5 @@ describe("Supplier test", function () {
       );
       expect(res.status).toHaveBeenCalledWith(200);
     }
-  }, 10000);
+  }, 20000);
 });

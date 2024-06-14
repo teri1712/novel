@@ -10,7 +10,6 @@ const { setPref, delPref } = require("../src/controller/prefs");
 const browser = require("../src/db/domain/browser");
 const { novelManager } = require("../src/db/manager");
 
-
 describe("Read novel by Preference flow", function () {
   async function expectOnPrefs(length, topDomain) {
     let prefs = await Prefs.find({ user: req.auth.id })
@@ -49,7 +48,6 @@ describe("Read novel by Preference flow", function () {
     await deleteOldMock();
     mongoose.disconnect();
     await (await browser).close();
-    ;
   });
 
   let res,
@@ -85,13 +83,22 @@ describe("Read novel by Preference flow", function () {
     expect(next).toHaveBeenCalledWith();
   }, 3000);
 
-  let suppliers;
+  let suppliers, novelId;
   test("Try to read Novel without Preferences", async () => {
-    let novel = await Novel.findById({
-      _id: "666338c08ce7d80488b8e7ac",
-    }).populate("suppliers.supplier");
+    let novel = await Novel.findOne({ $where: 'this.suppliers.length > 1' })
+      .populate("suppliers.supplier");
+    novelId = novel.id;
     suppliers = novel.suppliers.map((z) => z.supplier);
 
+    req.params = {
+      novelId: novelId,
+    };
+    req.query = {};
+    await getNovelDetail(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+  }, 10000);
+
+  test("Try to read Novel with a specified domain", async () => {
     req.params = {
       novelId: "666338c08ce7d80488b8e7ac",
     };
@@ -104,7 +111,7 @@ describe("Read novel by Preference flow", function () {
 
   test("Try to read Novel with a specified domain", async () => {
     req.params = {
-      novelId: "666338c08ce7d80488b8e7ac",
+      novelId: novelId,
     };
     req.query = {
       domain_name: suppliers[0].domain_name,
@@ -114,7 +121,6 @@ describe("Read novel by Preference flow", function () {
     let novelDetail = res.send.mock.calls[0][0];
 
     expectSupplier(novelDetail.supplier, suppliers[0].domain_name);
-
   }, 10000);
 
   test("Try to set a Preference", async () => {
@@ -127,7 +133,25 @@ describe("Read novel by Preference flow", function () {
     await expectOnPrefs(1, suppliers[0].domain_name);
   }, 10000);
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  test("Try to delete a Preference.", async () => {
+    req.params = {
+      domain_name: suppliers[0].domain_name,
+    };
+    await delPref(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
 
+    await delPref(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+
+    await expectOnPrefs(0);
+  }, 10000);
+=======
+>>>>>>> fc89e633 (dang test phan plugin export)
+
+>>>>>>> 0febdf36 (refactor code)
   test("Set 2 Preferences", async () => {
     req.body = {
       domain_names: [suppliers[1].domain_name, suppliers[0].domain_name],
@@ -138,7 +162,7 @@ describe("Read novel by Preference flow", function () {
 
   test("Try to read Novel base on preference", async () => {
     req.params = {
-      novelId: "666338c08ce7d80488b8e7ac",
+      novelId: novelId,
     };
     req.query = {};
     await getNovelDetail(req, res);
@@ -147,8 +171,17 @@ describe("Read novel by Preference flow", function () {
     let novelDetail = res.send.mock.calls[0][0];
     expectSupplier(novelDetail.supplier, suppliers[1].domain_name);
   }, 10000);
+<<<<<<< HEAD
+<<<<<<< HEAD
 
   test("Swap 2 Preferences", async () => {
+=======
+  test("Swapt 2 Preferences", async () => {
+>>>>>>> 0febdf36 (refactor code)
+=======
+
+  test("Swap 2 Preferences", async () => {
+>>>>>>> 0b26abfa (tích hợp phần export vô plugin ok)
     req.body = {
       domain_names: [suppliers[0].domain_name, suppliers[1].domain_name],
     };
@@ -158,7 +191,7 @@ describe("Read novel by Preference flow", function () {
 
   test("Try to read Novel with preference of a", async () => {
     req.params = {
-      novelId: "666338c08ce7d80488b8e7ac",
+      novelId: novelId,
     };
     await getNovelDetail(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -168,7 +201,7 @@ describe("Read novel by Preference flow", function () {
 
   test("Try to read Novel with a specified domain", async () => {
     req.params = {
-      novelId: "666338c08ce7d80488b8e7ac",
+      novelId: novelId,
     };
     req.query = {
       domain_name: suppliers[1].domain_name,
@@ -178,6 +211,9 @@ describe("Read novel by Preference flow", function () {
     let novelDetail = res.send.mock.calls[0][0];
 
     expectSupplier(novelDetail.supplier, suppliers[1].domain_name);
+<<<<<<< HEAD
+=======
 
+>>>>>>> 0b26abfa (tích hợp phần export vô plugin ok)
   }, 10000);
 });
