@@ -29,6 +29,10 @@ axiosInstance.interceptors.response.use(
   function (error) {
     if (error.response?.status === 401) {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

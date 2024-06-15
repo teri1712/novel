@@ -2,10 +2,11 @@ import { useState, useContext, useRef, useEffect, useMemo } from 'react';
 import { PreferencesContext } from '../../contexts/Preferences';
 import { Button, ColorPicker, DropDown, LoadingSpinner, Select } from '../../components';
 import { cn, convertPreferenceToStyle } from '../../utils/utils';
-import { AArrowDown, AArrowUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link, createSearchParams, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { AArrowDown, AArrowUp, ChevronLeft, ChevronRight, FileDown } from 'lucide-react';
+import { Link, createSearchParams, useParams, useSearchParams } from 'react-router-dom';
 import { getChapterContent } from '../../apis/novel';
 import LineHeight from '../../components/LineHeight/LineHeight';
+import { downloadTempfile, exportByFormat, getFormats } from '../../apis/formats';
 
 const fontOptions = [
   { value: 'Merriweather', label: 'Serif' },
@@ -14,11 +15,13 @@ const fontOptions = [
 
 const NovelReader = () => {
   const [chapterDetail, setChapterDetail] = useState({});
+  const [isExporting, setIsExporting] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState([]);
   const [preferences, setPreferences] = useContext(PreferencesContext);
   const [searchParams, _] = useSearchParams();
   const fetching = useRef(false);
   const { novelId = '', chapterId = '' } = useParams();
-  const domainName = searchParams.get('domain_name');
 
   useEffect(() => {
     const getChapterDetail = async () => {
@@ -27,15 +30,25 @@ const NovelReader = () => {
         setChapterDetail(result);
       }
     };
+
+    const getExportFormat = async () => {
+      const result = await getFormats();
+      if (result) {
+        setExportFormat(result.map((format) => ({ value: format, label: `Export to ${format.toUpperCase()}` })));
+      }
+    };
+    const domainName = searchParams.get('domain_name');
     if (fetching.current === false) {
+      setChapterDetail((prev) => ({ ...prev, content: undefined }));
       fetching.current = true;
       getChapterDetail();
+      getExportFormat();
     }
 
     return () => {
       fetching.current = false;
     };
-  }, [novelId, chapterId, domainName]);
+  }, [novelId, chapterId, searchParams]);
 
   const handleFontChange = (value) => {
     setPreferences((prev) => {
@@ -50,7 +63,10 @@ const NovelReader = () => {
     setPreferences((prev) => {
       return {
         ...prev,
-        fontSize: prev.fontSize + (increase ? 1 : -1)
+        fontSize:
+          typeof prev.fontSize === 'number'
+            ? prev.fontSize + (increase ? 1 : -1)
+            : parseInt(prev.fontSize) + (increase ? 1 : -1) || 18
       };
     });
   };
@@ -82,6 +98,20 @@ const NovelReader = () => {
     });
   };
 
+  const handleExport = async (format) => {
+    setIsExporting(true);
+    const result = await exportByFormat(format, chapterId, searchParams.get('domain_name'));
+
+    if (result) {
+      try {
+        await downloadTempfile(result.tempfile);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    setIsExporting(false);
+  };
+
   return (
     <div className='relative flex h-screen w-screen flex-col bg-slate-200'>
       <section className='max-w-screen flex justify-between overflow-x-auto overflow-y-hidden p-4'>
@@ -94,6 +124,27 @@ const NovelReader = () => {
             <h2 className='text-lg font-bold'>{chapterDetail.novel_name ?? 'Unknown'}</h2>
             <p className='text-sm'>{chapterDetail.author ?? 'unknown'}</p>
           </div>
+          <DropDown
+            contentClassName='w-[200px] text-sm font-medium'
+            options={exportFormat}
+            isOpen={isExportOpen}
+            onOpenChange={setIsExportOpen}
+            onOptionSelect={handleExport}
+          >
+            <Button
+              variant='secondary'
+              disabled={isExporting}
+              className='flex justify-center space-x-2 rounded-full align-middle'
+              onClick={() => setIsExportOpen(true)}
+            >
+              {isExporting ? (
+                <LoadingSpinner className='h-4 w-4'></LoadingSpinner>
+              ) : (
+                <FileDown size='0.8rem'></FileDown>
+              )}
+              <p className='text-sm'>Export</p>
+            </Button>
+          </DropDown>
         </div>
         {/* preferences section */}
         <div className='flex min-w-[50%] flex-nowrap justify-end space-x-2 overflow-x-auto'>
@@ -136,15 +187,24 @@ const NovelReader = () => {
           className='h-full w-full overflow-y-auto text-wrap rounded-lg p-4 px-[10%] pb-20'
           style={convertPreferenceToStyle(preferences)}
         >
-          {chapterDetail.content ? <p>{chapterDetail.content}</p> : <LoadingSpinner></LoadingSpinner>}
+          {chapterDetail.content ? (
+            <p>{chapterDetail.content}</p>
+          ) : (
+            <LoadingSpinner className='mx-auto my-auto self-center'></LoadingSpinner>
+          )}
         </pre>
       </section>
-      <ChapterSection chapterDetail={chapterDetail}></ChapterSection>
+      <ChapterSection
+        chapterDetail={chapterDetail}
+        onChapterChange={() => {
+          setChapterDetail({});
+        }}
+      ></ChapterSection>
     </div>
   );
 };
 
-const ChapterSection = ({ chapterDetail }) => {
+const ChapterSection = ({ chapterDetail, onChapterChange }) => {
   const [isListOpen, setListOpen] = useState(false);
   const { novelId = '' } = useParams();
   const [_, setSearchParams] = useSearchParams();
@@ -158,6 +218,7 @@ const ChapterSection = ({ chapterDetail }) => {
   }, [chapterDetail]);
 
   const handleOptionSelect = (value) => {
+    onChapterChange();
     setSearchParams(createSearchParams({ domain_name: value }));
   };
 
@@ -189,7 +250,7 @@ const ChapterSection = ({ chapterDetail }) => {
           popupHeader='Select Novel Source'
         >
           <div
-            className='relative flex cursor-pointer flex-col justify-center px-4 align-middle'
+            className='relative flex min-w-[100px] cursor-pointer flex-col justify-center px-4 align-middle'
             role='combobox'
             aria-expanded={open}
           >

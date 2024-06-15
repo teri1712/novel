@@ -19,7 +19,7 @@ async function getAllFormat(req, res) {
 async function exportWithFormat(req, res) {
   const { file_format, chapterId, supplier } = req.body;
   try {
-    let formatter = formatFactory.get(file_format);
+    let formatter = formatFactory.create(file_format);
     if (!formatter) {
       res.status(400);
       res.send("Format is not supported");
@@ -36,8 +36,9 @@ async function exportWithFormat(req, res) {
       });
     const helper = new Helper(chapter, supplier);
     let tempfile = await formatter.format(helper);
+    let paths = tempfile.split("/");
     res.send({
-      tempfile: tempfile,
+      tempfile: paths[paths.length - 1],
       timeout: "5 minutes",
     });
     deleteTempfile(tempfile);
@@ -52,12 +53,13 @@ function deleteTempfile(tempfile) {
   setTimeout(() => {
     try {
       fs.unlink(tempfile);
-    } catch (error) { }
+    } catch (error) {}
   }, 1000 * 60 * 5);
 }
 async function downloadTempfile(req, res) {
   const { tempfile } = req.query;
-  if (!fs.existsSync(tempfile)) {
+  let filePath = "./src/format/temp/" + tempfile;
+  if (!fs.existsSync(filePath)) {
     res.status(400);
     res.send("The file is no longer exist");
     return;
@@ -67,8 +69,8 @@ async function downloadTempfile(req, res) {
       console.error(err);
     }
     try {
-      fs.unlink(tempfile);
-    } catch (error) { }
+      fs.unlink(filePath);
+    } catch (error) {}
   });
 }
 module.exports = {

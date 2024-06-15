@@ -29,8 +29,10 @@ describe("Export test", function () {
   }
 
   beforeAll(async () => {
+    require("dotenv").config();
+
     mongoose
-      .connect("mongodb://127.0.0.1:27017/novel")
+      .connect(process.env.DB_HOST)
       .then(() => console.log("Novel database connected"))
       .catch((err) => console.error(err));
     await novelManager.initiated;
@@ -52,9 +54,7 @@ describe("Export test", function () {
   });
 
   test("Export Pdf", async () => {
-    let chapter = await Chapter.findOne({
-      _id: "666338c08ce7d80488b8e7c6",
-    })
+    let chapter = await Chapter.findOne()
       .populate("suppliers.supplier")
       .populate({
         path: "novel",
@@ -64,7 +64,7 @@ describe("Export test", function () {
       });
 
     const helper = new Helper(chapter, "truyenfull.vn");
-    let formatter = formatFactory.get("pdf");
+    let formatter = formatFactory.create("pdf");
     await formatter.format(helper);
   }, 60000);
   test(
@@ -73,7 +73,7 @@ describe("Export test", function () {
       req.body = {
         format_name: "docx",
         dependency: "docx",
-        payload: fs.readFileSync("./src/format/zzzzz/docx.js", "utf8"),
+        payload: fs.readFileSync("./src/format/zzzzz/docx.docx.js", "utf8"),
       };
       res.setHeader = jest.fn();
       await addFormatter(req, res);
@@ -82,9 +82,7 @@ describe("Export test", function () {
     10 * 60000
   );
   test("Export Docx", async () => {
-    let chapter = await Chapter.findOne({
-      _id: "666338c08ce7d80488b8e7c6",
-    })
+    let chapter = await Chapter.findOne()
       .populate("suppliers.supplier")
       .populate({
         path: "novel",
@@ -94,7 +92,7 @@ describe("Export test", function () {
       });
 
     const helper = new Helper(chapter, "truyenfull.vn");
-    let formatter = formatFactory.get("docx");
+    let formatter = formatFactory.create("docx");
     await formatter.format(helper);
   }, 60000);
 

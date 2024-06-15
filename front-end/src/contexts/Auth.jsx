@@ -5,46 +5,44 @@ export const AuthContext = createContext(null);
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('accessToken')) {
-      const result = validate(localStorage.getItem('accessToken'));
-      if (result) {
-        setUser({ username: result.username, isAdmin: result.role === 'admin' });
-      } else {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        setUser(null);
+    const revalidate = async () => {
+      if (localStorage.getItem('accessToken')) {
+        const result = await validate(localStorage.getItem('accessToken'));
+        if (result) {
+          setUser({ username: result.fullname, isAdmin: result.role === 'admin' });
+        } else {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          setUser(null);
+        }
       }
-    }
-  }, []);
+    };
 
-  useEffect(() => {
-    // const validate = async () => {
-    //   const token = localStorage.getItem('token');
-    //   if (token) {
-    //     const user = await validateToken(token);
-    //     setUser(user);
-    //   }
-    // };
-    // validate();
+    revalidate();
   }, []);
 
   const login = async (user) => {
-    // TODO: Implement login logic
-    const loginResponse = await apiLogin(user.username, user.password);
-    if (loginResponse) {
-      setUser({ username: user.username, isAdmin: loginResponse.authorization === 'admin' });
-      localStorage.setItem('accessToken', loginResponse.accessToken);
-      localStorage.setItem('refreshToken', loginResponse.refreshToken);
+    setIsLoggingIn(true);
+    try {
+      const loginResponse = await apiLogin(user.username, user.password);
+      if (loginResponse) {
+        setUser({ username: user.username, isAdmin: loginResponse.authorization === 'admin' });
+        localStorage.setItem('accessToken', loginResponse.accessToken);
+        localStorage.setItem('refreshToken', loginResponse.refreshToken);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoggingIn(false);
+      return true;
     }
-    return true;
   };
-
-  // const validateToken = async (token) => {
-  //   // TODO: Implement token validation logic
-  //   return { id: '1', username: token, isAdmin: true };
-  // };
 
   const logout = async () => {
     setUser(null);
@@ -53,7 +51,7 @@ const AuthContextProvider = ({ children }) => {
     return true;
   };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, login, logout, isLoggingIn }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContextProvider;

@@ -11,6 +11,9 @@ async function setPref(req, res) {
     let ord = 0;
     for (let domain_name of domain_names) {
       let supplier = await Supplier.findOne({ domain_name: domain_name });
+      if (!supplier) {
+        continue;
+      }
       await Prefs.create({
         user: auth.id,
         supplier: supplier.id,
@@ -29,7 +32,16 @@ async function getPref(req, res) {
   const auth = req.auth;
 
   try {
-    let prefs = (await Prefs.find({ user: auth.id })).map((p) => p.supplier);
+    let fetched = await Prefs.find({ user: auth.id }).sort({ order: -1 });
+    let prefs = [];
+    for (let z of fetched) {
+      let supplier = await Supplier.findById(z.supplier);
+      if (supplier) {
+        prefs.push(supplier.domain_name);
+      } else {
+        await z.deleteOne();
+      }
+    }
     let domain_names = novelManager.findAll();
     let others = [];
     for (let domain_name of domain_names) {

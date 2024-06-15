@@ -1,10 +1,12 @@
-import { cn } from '../../utils/utils';
+import { cn, debounce } from '../../utils/utils';
 import { NovelCard, SearchBar, RecentItems, CardLayout } from '../../components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getNovels } from '../../apis/novel';
 
 const Homepage = ({ ...props }) => {
   const [novelList, setNovelList] = useState(null);
+  const [searchOption, setSearchOption] = useState('title');
+  const [searchTerm, setSearchTerm] = useState('');
   const lastFetchedPageIndex = useRef(-1);
   const isFetching = useRef(false);
   const [pageOffset, setPageOffset] = useState(0);
@@ -34,8 +36,8 @@ const Homepage = ({ ...props }) => {
         }
       }
     };
-
-    if (lastFetchedPageIndex.current < pageOffset && (!novelList || pageOffset < novelList.total_pages)) {
+    console.log(lastFetchedPageIndex.current, pageOffset, novelList);
+    if (lastFetchedPageIndex.current < pageOffset || lastFetchedPageIndex.current === -1) {
       getNovelList(pageOffset);
     }
 
@@ -43,12 +45,12 @@ const Homepage = ({ ...props }) => {
       isMounted = false;
       isFetching.current = false;
     };
-  }, [pageOffset]);
+  }, [pageOffset, searchOption, lastFetchedPageIndex.current]);
 
   const handleIntersection = useCallback(
     (entries) => {
       const target = entries[0];
-      if (target.isIntersecting && !isFetching.current) {
+      if (target.isIntersecting && !isFetching.current && searchTerm === '') {
         setPageOffset((prev) => {
           if (novelList && prev < novelList.total_pages - 1) {
             return prev + 1;
@@ -79,9 +81,24 @@ const Homepage = ({ ...props }) => {
   }, [handleIntersection]);
 
   const handleSearchFilterChange = (value) => {
-    console.log(value);
-    // handle search
+    setSearchOption(value);
   };
+
+  const handleSearchTermChange = debounce(async (value) => {
+    setNovelList(null);
+    setSearchTerm(value);
+    if (value === '' || value === null) {
+      lastFetchedPageIndex.current = -1;
+      setPageOffset(0);
+      return;
+    }
+    const result = await getNovels(0, value, searchOption);
+    if (result) {
+      setNovelList(result);
+      lastFetchedPageIndex.current = 0;
+      setPageOffset(0);
+    }
+  }, 500);
 
   return (
     <div {...props} className={cn('h-full', props ? props.className ?? '' : '')}>
@@ -91,13 +108,15 @@ const Homepage = ({ ...props }) => {
             className='mx-auto w-full '
             placeholder='Search for a novel'
             onSearchFilterChange={handleSearchFilterChange}
+            onSearchValueChange={handleSearchTermChange}
           />
         </div>
         <div className='relative flex flex-col-reverse lg:flex-row'>
           <div className='flex-grow basis-3/5'>
             <div className='flex flex-wrap'>
               {novelList
-                ? novelList.novels && novelList.novels.map((novel) => (
+                ? novelList.novels &&
+                  novelList.novels.map((novel) => (
                     <NovelCard
                       key={novel.id}
                       id={novel.id}

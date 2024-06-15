@@ -6,6 +6,35 @@ const Chapter = require("./models/chapter.js");
 const Supplier = require("./models/supplier.js");
 const Category = require("./models/category.js");
 const { v4: uuidv4 } = require("uuid");
+const { default: mongoose } = require("mongoose");
+const Prefs = require("./models/preference.js");
+const UserRead = require("./models/userread.js");
+class Progress {
+  constructor() {
+    this.end = false;
+    this.logger = console.log;
+  }
+  onLog(logger) {
+    this.logger = logger;
+  }
+  log(message) {
+    if (message == "End") {
+      this.end = true;
+      if (this.endCallBack) {
+        this.endCallBack();
+      }
+      return;
+    }
+    this.logger(message);
+  }
+  onEnd(endCallBack) {
+    if (this.end) {
+      endCallBack();
+      return;
+    }
+    this.endCallBack = endCallBack;
+  }
+}
 
 class NovelManager {
   constructor() {
@@ -44,7 +73,7 @@ class NovelManager {
 
     let plugins = this.plugins;
     if (plugins.has(domain_name)) {
-      return null;
+      return "Error: Domain name exists";
     }
 
     try {
@@ -58,11 +87,16 @@ class NovelManager {
       _includeToDb(new Crawler(await browser), prog)
         .then(() => {
           this.update(plugin);
+          setTimeout(() => {
+            this.progress_store.delete(progress_id);
+          }, 30 * 1000);
         })
         .catch((error) => {
           console.error(error);
         });
-      return prog;
+      let progress_id = uuidv4();
+      this.progress_store.set(progress_id, prog);
+      return progress_id;
     } catch (error) {
       console.error(error);
     }
@@ -91,14 +125,18 @@ class NovelManager {
       try {
         fs.unlinkSync("./src/db/plug-in/" + domain_name + ".js");
       } catch (error) {}
-      let prog = {
-        log: console.log,
-        onLog: function (x) {
-          this.log = x;
-        },
-      };
-      _excludeFromDb(domain_name, prog);
-
+      let prog = new Progress();
+      _excludeFromDb(domain_name, prog)
+        .then(() => {
+          setTimeout(() => {
+            this.progress_store.delete(progress_id);
+          }, 30 * 1000);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      let progress_id = uuidv4();
+      this.progress_store.set(progress_id, prog);
       return progress_id;
     } catch (error) {
       console.error(error);
@@ -140,12 +178,11 @@ async function _includeToDb(crawler, prog) {
   let total = Object.keys(cates).length;
   for (let [key, value] of Object.entries(cates)) {
     let this_prog = (step++ / total) * 100;
-    prog.log(Math.floor(this_prog));
-    console.log(Math.floor(this_prog));
+    prog.log(Math.floor(this_prog).toString());
     let getNovelUrls = await crawler.crawlNovelsByType(value);
     for (let i = 0; i < getNovelUrls.length; i++) {
       this_prog += (1 / getNovelUrls.length / total) * 100;
-      prog.log(Math.floor(this_prog));
+      prog.log(Math.floor(this_prog).toString());
       let novelUrl = getNovelUrls[i];
       if (cached.has(novelUrl)) {
         continue;
@@ -155,6 +192,7 @@ async function _includeToDb(crawler, prog) {
     }
     await supplier.save();
   }
+  prog.log("100");
   prog.log("End");
 }
 
@@ -212,6 +250,7 @@ async function _excludeFromDb(domain_name, prog) {
   }
   let novels = await Novel.find({ "suppliers.supplier": supplier.id });
   let chapters = await Chapter.find({ "suppliers.supplier": supplier.id });
+  await Prefs.deleteMany({ supplier: supplier.id });
   let total = novels.length + chapters.length;
   let p = 0;
   prog.log("0");
@@ -226,10 +265,11 @@ async function _excludeFromDb(domain_name, prog) {
     }
     if (novel.suppliers.length == 0) {
       await novel.deleteOne();
+      await UserRead.deleteMany({ novel: novel.id });
     } else {
       await novel.save();
     }
-    prog.log("" + Math.floor((++p / total) * 100));
+    prog.log(Math.floor((++p / total) * 100).toString());
   }
 
   for (let chapter of chapters) {
@@ -245,9 +285,10 @@ async function _excludeFromDb(domain_name, prog) {
     } else {
       await chapter.save();
     }
-    prog.log("" + Math.floor((++p / total) * 100));
+    prog.log(Math.floor((++p / total) * 100).toString());
   }
   await supplier.deleteOne();
+  prog.log("100");
   prog.log("End");
 }
 const novelManager = new NovelManager();

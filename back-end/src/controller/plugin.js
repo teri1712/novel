@@ -6,7 +6,7 @@ const fs = require("fs");
 const { novelManager } = require("../db/manager.js");
 const { formatManager } = require("../format/manager.js");
 
-async function getAddingProgress(req, res) {
+async function getProgress(req, res) {
   const { progress_id } = req.query;
   let prog = await novelManager.findProgress(progress_id);
   if (!prog) {
@@ -19,10 +19,13 @@ async function getAddingProgress(req, res) {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
+
   prog.onLog((s) => {
-    res.write(s);
+    res.write("data: {" + s + "}\n\n");
+    console.log(s);
   });
   prog.onEnd(() => {
+    console.log("End");
     res.end();
   });
 }
@@ -31,7 +34,11 @@ async function addSupplier(req, res) {
   let progress_id = await novelManager.plugIn(domain_name, payload);
   if (!progress_id) {
     res.status(400);
-    res.send("Bad request");
+    res.send("Internal Error in Server, see log");
+    return;
+  } else if (progress_id.startsWith("Error")) {
+    res.status(400);
+    res.send(progress_id);
     return;
   }
   res.status(200);
@@ -60,9 +67,8 @@ async function getAllSuppliers(req, res) {
     });
   }
   res.status(200);
-  res.send(body)
+  res.send(body);
 }
-
 
 async function getImplementOfSuplier(req, res) {
   const { domain_name } = req.params;
@@ -114,10 +120,6 @@ async function removeFormatter(req, res) {
 
 async function getImplementOfFormatter(req, res) {
   const { format_name } = req.params;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> fc89e633 (dang test phan plugin export)
   try {
     let code = formatManager.findCode(format_name);
     if (code) {
@@ -129,21 +131,6 @@ async function getImplementOfFormatter(req, res) {
     }
   } catch (error) {
     console.error(error);
-<<<<<<< HEAD
-=======
-  if (await format_plugger.get(format_name)) {
-    let file = fs.readFileSync(
-      "./src/format/plug-in/" + format_name + ".js",
-      "utf8"
-    );
-    res.status(200);
-    res.send(file);
-  } else {
->>>>>>> 0febdf36 (refactor code)
-=======
->>>>>>> fc89e633 (dang test phan plugin export)
-    res.status(400);
-    res.send("Bad request");
   }
 }
 module.exports = {
@@ -153,14 +140,6 @@ module.exports = {
   getImplementOfFormatter,
   addFormatter,
   removeFormatter,
-<<<<<<< HEAD
-<<<<<<< HEAD
   getAllSuppliers,
-=======
-  getAllSuppliers
->>>>>>> fc89e633 (dang test phan plugin export)
-=======
-  getAllSuppliers,
-  getAddingProgress
->>>>>>> a07962dc (server sent event)
+  getProgress,
 };

@@ -123,7 +123,7 @@ class FormatterManager {
         "./src/format/plug-in/" +
           format_name +
           "." +
-          this.dependencies(format_name) +
+          this.dependencies.get(format_name) +
           ".js",
         "utf8"
       );
@@ -132,7 +132,7 @@ class FormatterManager {
     return null;
   }
   findAll() {
-    return this.plugins.keys();
+    return [...this.plugins.keys()];
   }
 }
 const formatManager = new FormatterManager();
