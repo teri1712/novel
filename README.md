@@ -1,46 +1,39 @@
-# Comic Universe - MERN Stack Web Scraper
+# Introduction
 
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB) ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+Novel is a full-stack web application built with the MERN stack. It dynamically scrapes comic information and pages from various online sources and presents them in a clean, user-friendly interface for reading.
 
-Comic Universe is a full-stack web application built with the MERN stack. It dynamically scrapes comic information and pages from various online sources and presents them in a clean, user-friendly interface for reading.
-
-## 🎬 Demo
+## Demo
 
 A full video demonstration of the application's features can be found here:
 
 ➡️ **[View Demo Videos](https://drive.google.com/drive/folders/1EXyaDdK_M0uTLXsahPPF455Je-FarREi)**
 
----
 
-## ✨ Features
+## Features
 
 - **Browse & Discover:** View a vast collection of comics on the homepage with pagination.
-- **Advanced Search:** Instantly search for comics by title.
+- **Search:** Instantly search for comics by title.
 - **Detailed Information:** Get details for each comic, including genres, author, status, and a full chapter list.
-- **Seamless Reader:** A clean, vertical reader for an uninterrupted experience.
+- **Seamless Reader:** A clean, vertical reader experience.
 - **Chapter Navigation:** Easily switch between chapters using next/previous buttons or a dropdown menu.
 - **User Accounts:** Secure registration and login system using JWT for authentication.
 - **Personalized Lists:**
     - **Following:** Follow your favorite comics to keep track of them.
     - **Reading History:** Automatically saves your reading progress.
-- **Responsive Design:** Fully functional on both desktop and mobile devices.
 
----
+## Techs tack
 
-## 🛠️ Tech Stack
+| Category     | Technology                                                    |
+|--------------|---------------------------------------------------------------|
+| **Frontend** | React, React Router, Axios                                    |
+| **Backend**  | Node.js, Express.js                                           |
+| **Database** | MongoDB with Mongoose                                         |
+| **Scraping** | Cheerio, Axios / Puppeteer                                    |
+| **Auth**     | JSON Web Tokens (JWT)                                         |
+| **Styling**  | CSS / SASS (or your chosen library like Material-UI/Tailwind) |
 
-| Category       | Technology                                                                                             |
-|----------------|--------------------------------------------------------------------------------------------------------|
-| **Frontend**   | [React](https://reactjs.org/), [React Router](https://reactrouter.com/), [Axios](https://axios-http.com/) |
-| **Backend**    | [Node.js](https://nodejs.org/), [Express.js](https://expressjs.com/)                                     |
-| **Database**   | [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)                             |
-| **Scraping**   | [Cheerio](https://cheerio.js.org/), [Axios](https://axios-http.com/) / [Puppeteer](https://pptr.dev/)     |
-| **Auth**       | [JSON Web Tokens (JWT)](https://jwt.io/)                                                                 |
-| **Styling**    | CSS / SASS (or your chosen library like Material-UI/Tailwind)                                            |
 
----
-
-## 🏗️ Project Structure
+## Project Structure
 
 The project is organized into two main directories:
 
@@ -49,7 +42,7 @@ The project is organized into two main directories:
 
 ---
 
-## 🚀 Getting Started
+## Running the Application
 
 Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
 
